@@ -1,4 +1,5 @@
 const models = require("../models");
+const { db } = require("../models/Domo");
 const Domo = models.Domo;
 
 const makerPage = (req,res) => {
@@ -8,7 +9,7 @@ const makerPage = (req,res) => {
 const getDomos = async (req,res) => {
      try{
         const query = {owner: req.session.account._id};
-        const docs = await Domo.find(query).select("name age").lean().exec();
+        const docs = await Domo.find(query).select("name age creator").lean().exec();
 
         return res.json({domos: docs});
     }
@@ -27,12 +28,13 @@ const makeDomo = async (req,res) => {
         name: req.body.name,
         age: req.body.age,
         owner: req.session.account._id,
+        creator: req.session.account.username,
     };
 
     try{
         const newDomo = new Domo(domoData);
         await newDomo.save();
-        return res.status(201).json({name: newDomo.name, age: newDomo.age});
+        return res.status(201).json({name: newDomo.name, age: newDomo.age, creator: newDomo.creator});
     }
     catch (err){
         if(err.code === 11000){
@@ -41,6 +43,8 @@ const makeDomo = async (req,res) => {
         return res.status(500).json({error: "An error occured making domo!"});
     }
 };
+
+
 
 module.exports = {
     makerPage,

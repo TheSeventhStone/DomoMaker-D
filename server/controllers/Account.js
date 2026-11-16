@@ -6,6 +6,10 @@ const loginPage = (req,res) => {
     return res.render("login");
 };
 
+const browsePage = (req,res) => {
+    return res.render("browse");
+};
+
 const logout = (req,res) => {
     req.session.destroy();
     return res.redirect("/");
@@ -59,9 +63,23 @@ const signup = async (req,res) => {
     }
 };
 
+const getUsers = async (req,res) => {
+     try{
+        const docs = await Account.find().select("username _id").lean().exec();
+
+        return res.json({users: docs});
+    }
+    catch (err){
+        console.log(err);
+        return res.status(500).json({error: "Error retrieving users!"}); 
+    }
+};
+
 module.exports = {
     loginPage,
     login,
     logout,
     signup,
+    browsePage,
+    getUsers,
 };
